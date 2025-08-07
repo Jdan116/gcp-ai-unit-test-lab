@@ -16,19 +16,24 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
-
-    // GCP libs (you can collapse duplicates later if you like)
-    implementation 'org.springframework.cloud:spring-cloud-gcp-starter-pubsub:1.2.8.RELEASE'
+    implementation 'org.springframework.cloud:spring-cloud-gcp-starter-pubsub'
     implementation 'com.google.cloud:google-cloud-bigquery:2.54.0'
     implementation 'com.google.cloud:google-cloud-storage:2.55.0'
-
-    // Lombok
-    compileOnly 'org.projectlombok:lombok:1.18.38'
-    annotationProcessor 'org.projectlombok:lombok:1.18.38'
+    implementation 'org.projectlombok:lombok:1.18.38'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.mockito:mockito-core:5.11.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jacoco {
+    toolVersion = "0.8.11"
 }
 
 tasks.test {
@@ -36,25 +41,16 @@ tasks.test {
     finalizedBy tasks.jacocoTestReport
 }
 
-jacoco {
-    toolVersion = "0.8.11"
-}
-
-tasks.jacocoTestReport {
-    dependsOn tasks.test
+jacocoTestReport {
+    dependsOn test
     reports {
-        // Ensure BOTH formats exist
-        xml.required = true
-        html.required = true
-
-        // Force a stable XML path & format that the GH action can parse
-        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml"))
-        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/test/html"))
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(true) // ✅ Required for badge generator
     }
-
-    // Keep defaults to avoid empty/partial reports.
-    // (If you need excludes later, add them carefully.)
-    // classDirectories.setFrom(fileTree(dir: "build/classes/java/main"))
-    // sourceDirectories.setFrom(files("src/main/java"))
-    // executionData.setFrom(fileTree(dir: "build") { include "**/jacoco/test.exec" })
+    sourceDirectories.setFrom(files("src/main/java"))
+    classDirectories.setFrom(fileTree("build/classes/java/main"))
+    executionData.setFrom(fileTree("build") {
+        include "**/jacoco/test.exec"
+    })
 }

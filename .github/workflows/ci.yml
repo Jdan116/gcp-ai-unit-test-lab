@@ -1,73 +1,60 @@
-name: Java CI with Gradle + JaCoCo + PR Coverage
+name: CI with JaCoCo Coverage
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
-
-permissions:
-  contents: read
-  pull-requests: write
+    branches: [ main ]
 
 jobs:
-  build:
+  build-test-coverage:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🧾 Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: ☕ Set up JDK 21
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: 21
+          java-version: '17'
+          distribution: 'temurin'
 
-      - name: ⚙️ Set up Gradle (cache)
-        uses: gradle/gradle-build-action@v2
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
-      - name: ✅ Test + JaCoCo
-        run: gradle clean test jacocoTestReport
+      - name: Build, test, and generate JaCoCo report
+        run: ./gradlew clean build jacocoTestReport
 
-      - name: 🔎 Verify JaCoCo XML exists
-        run: |
-          ls -la build/reports/jacoco/test || true
-          test -f build/reports/jacoco/test/jacocoTestReport.xml || (echo "❌ XML not found"; exit 1)
+      - name: Verify JaCoCo CSV exists
+        run: ls -la build/reports/jacoco/test || true
 
-      # --- Parse JaCoCo and generate Markdown + badges ---
-      - name: 📊 Generate coverage summary + badges
-        id: jacoco
+      - name: Generate JaCoCo coverage badges
         uses: cicirello/jacoco-badge-generator@v2
         with:
-          jacoco-csv-report-path: ""               # leave blank (we use XML)
-          jacoco-report-path: build/reports/jacoco/test/jacocoTestReport.xml
+          jacoco-csv-file: build/reports/jacoco/test/jacocoTestReport.csv
+          badges-directory: .github/badges
+          coverage-badge-filename: coverage.svg
+          branches-badge-filename: branches.svg
+          generate-coverage-badge: true
           generate-branches-badge: true
+          coverage-label: coverage
+          branches-label: branches
+          on-missing-report: fail
+          fail-if-coverage-less-than: 70
+          fail-if-branches-less-than: 50
           generate-summary: true
           summary-filename: coverage-summary.md
-          fail-on-coverage-decrease: false         # set true if you keep history
-          minimum-coverage: 0                       # set e.g. 80 to gate merges
 
-      - name: 📋 Add coverage to job summary
-        run: cat coverage-summary.md >> $GITHUB_STEP_SUMMARY
-
-      - name: 💬 Sticky PR comment with coverage
-        if: github.event_name == 'pull_request'
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          path: coverage-summary.md
-
-      # --- Artifacts for drill-down in browser ---
-      - name: 📦 Upload JaCoCo HTML
+      - name: Upload badges as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: jacoco-html-report
-          path: build/reports/jacoco/test/html
-          if-no-files-found: warn
-
-      - name: 📦 Upload JaCoCo XML
-        uses: actions/upload-artifact@v4
-        with:
-          name: jacoco-xml-report
-          path: build/reports/jacoco/test/jacocoTestReport.xml
-          if-no-files-found: warn
+          name: coverage-badges
+          path: .github/badges
