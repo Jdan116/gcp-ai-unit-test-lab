@@ -1,4 +1,4 @@
-name: Java CI with Gradle + JaCoCo + Coverage Summary
+name: Java CI with Gradle + JaCoCo + PR Coverage
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🧾 Checkout code
+      - name: 🧾 Checkout
         uses: actions/checkout@v4
 
       - name: ☕ Set up JDK 21
@@ -24,45 +24,48 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: ⚙️ Set up Gradle (with caching)
+      - name: ⚙️ Set up Gradle (cache)
         uses: gradle/gradle-build-action@v2
 
-      - name: ✅ Run tests and generate JaCoCo report
+      - name: ✅ Test + JaCoCo
         run: gradle clean test jacocoTestReport
 
-      # --- Sanity check: prove XML exists ---
       - name: 🔎 Verify JaCoCo XML exists
         run: |
           ls -la build/reports/jacoco/test || true
-          test -f build/reports/jacoco/test/jacocoTestReport.xml || (echo "❌ XML not found at expected path"; exit 1)
+          test -f build/reports/jacoco/test/jacocoTestReport.xml || (echo "❌ XML not found"; exit 1)
 
-      # --- Human-readable coverage table in Actions summary & PR ---
-      - name: 🧮 Generate coverage summary (Markdown)
-        uses: irongut/CodeCoverageSummary@v1.3.0
+      # --- Parse JaCoCo and generate Markdown + badges ---
+      - name: 📊 Generate coverage summary + badges
+        id: jacoco
+        uses: cicirello/jacoco-badge-generator@v2
         with:
-          filename: build/reports/jacoco/test/jacocoTestReport.xml
-          badge: true
-          format: markdown
-          output: both
+          jacoco-csv-report-path: ""               # leave blank (we use XML)
+          jacoco-report-path: build/reports/jacoco/test/jacocoTestReport.xml
+          generate-branches-badge: true
+          generate-summary: true
+          summary-filename: coverage-summary.md
+          fail-on-coverage-decrease: false         # set true if you keep history
+          minimum-coverage: 0                       # set e.g. 80 to gate merges
 
       - name: 📋 Add coverage to job summary
-        run: cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
+        run: cat coverage-summary.md >> $GITHUB_STEP_SUMMARY
 
-      - name: 💬 Comment coverage on PR
+      - name: 💬 Sticky PR comment with coverage
         if: github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
-          path: code-coverage-results.md
+          path: coverage-summary.md
 
-      # --- Artifacts: full HTML & XML reports for drill-down ---
-      - name: 📦 Upload JaCoCo HTML report
+      # --- Artifacts for drill-down in browser ---
+      - name: 📦 Upload JaCoCo HTML
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-html-report
           path: build/reports/jacoco/test/html
           if-no-files-found: warn
 
-      - name: 📦 Upload JaCoCo XML report
+      - name: 📦 Upload JaCoCo XML
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-xml-report
