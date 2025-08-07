@@ -30,52 +30,32 @@ jobs:
       - name: ✅ Run tests and generate JaCoCo report
         run: gradle clean test jacocoTestReport
 
-      # --- Verify & locate the JaCoCo XML (robust) ---
+      # --- Sanity check: prove XML exists ---
       - name: 🔎 Verify JaCoCo XML exists
         run: |
           ls -la build/reports/jacoco/test || true
-          test -f build/reports/jacoco/test/jacocoTestReport.xml || (echo "❌ XML not found at default path"; exit 1)
-
-      - name: 🔎 Find JaCoCo XML (fallback)
-        id: jacoco
-        continue-on-error: true
-        run: |
-          FILE=$(find build -type f -name "jacocoTestReport.xml" | head -n1)
-          if [ -n "$FILE" ]; then
-            echo "file=$FILE" >> $GITHUB_OUTPUT
-            echo "Found: $FILE"
-          else
-            echo "No XML found via find()."
-          fi
+          test -f build/reports/jacoco/test/jacocoTestReport.xml || (echo "❌ XML not found at expected path"; exit 1)
 
       # --- Human-readable coverage table in Actions summary & PR ---
       - name: 🧮 Generate coverage summary (Markdown)
-        if: always()
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
-          filename: ${{ steps.jacoco.outputs.file || 'build/reports/jacoco/test/jacocoTestReport.xml' }}
+          filename: build/reports/jacoco/test/jacocoTestReport.xml
           badge: true
           format: markdown
           output: both
 
       - name: 📋 Add coverage to job summary
-        if: always()
-        run: |
-          if [ -f code-coverage-results.md ]; then
-            cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
-          else
-            echo "No coverage summary generated." >> $GITHUB_STEP_SUMMARY
-          fi
+        run: cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
 
       - name: 💬 Comment coverage on PR
-        if: github.event_name == 'pull_request' && always()
+        if: github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           path: code-coverage-results.md
 
-      # --- Artifacts: full HTML & XML reports ---
+      # --- Artifacts: full HTML & XML reports for drill-down ---
       - name: 📦 Upload JaCoCo HTML report
-        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-html-report
@@ -83,9 +63,8 @@ jobs:
           if-no-files-found: warn
 
       - name: 📦 Upload JaCoCo XML report
-        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-xml-report
-          path: ${{ steps.jacoco.outputs.file || 'build/reports/jacoco/test/jacocoTestReport.xml' }}
+          path: build/reports/jacoco/test/jacocoTestReport.xml
           if-no-files-found: warn
