@@ -1,4 +1,4 @@
-name: Java CI with Gradle and JaCoCo
+name: Java CI with Gradle + JaCoCo + Coverage Summary (Option B)
 
 on:
   push:
@@ -6,16 +6,21 @@ on:
   pull_request:
     branches: [main]
 
+# needed so the workflow can post a PR comment
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
       - name: 🧾 Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: ☕ Set up JDK 21
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 21
@@ -26,14 +31,35 @@ jobs:
       - name: ✅ Run tests and generate JaCoCo report
         run: gradle clean test jacocoTestReport
 
+      # ---- Artifacts (optional but nice to keep) ----
       - name: 📦 Upload JaCoCo HTML report
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-html-report
           path: build/reports/jacoco/test/html
 
-      - name: 📦 Upload JaCoCo XML report (optional for badges/Codecov)
+      - name: 📦 Upload JaCoCo XML report
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-xml-report
           path: build/reports/jacoco/test/jacocoTestReport.xml
+
+      # ---- Generate a human-readable coverage table from the XML ----
+      - name: 🧮 Generate coverage summary (Markdown)
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: build/reports/jacoco/test/jacocoTestReport.xml
+          badge: true
+          format: markdown
+          output: both   # creates code-coverage-results.md and prints to STDOUT
+
+      # ---- Show the coverage table in the job summary (Actions UI) ----
+      - name: 📋 Add coverage to job summary
+        run: cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
+
+      # ---- Post or update a sticky PR comment with the table ----
+      - name: 💬 Comment coverage on PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: code-coverage-results.md
