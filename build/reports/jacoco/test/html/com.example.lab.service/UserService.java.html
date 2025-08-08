@@ -15,8 +15,8 @@ public class UserService {
     private final UserRepository userRepository;
 
     public User createUser(UserDto dto) {
-<span class="pc bpc" id="L18" title="1 of 2 branches missed.">        if (userRepository.existsByEmail(dto.getEmail())) {</span>
-<span class="fc" id="L19">            throw new EmailAlreadyExistsException(&quot;Email already exists&quot;);</span>
+<span class="nc bnc" id="L18" title="All 2 branches missed.">        if (userRepository.existsByEmail(dto.getEmail())) {</span>
+<span class="nc" id="L19">            throw new EmailAlreadyExistsException(&quot;Email already exists&quot;);</span>
         }
 <span class="nc" id="L21">        return userRepository.save(new User(dto.getName(), dto.getEmail()));</span>
     }
