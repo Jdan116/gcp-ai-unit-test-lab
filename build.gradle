@@ -16,18 +16,18 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
-
-    // GCP libs
     implementation 'com.google.cloud:google-cloud-bigquery:2.54.0'
     implementation 'com.google.cloud:google-cloud-storage:2.55.0'
-
-    // Lombok
-    compileOnly 'org.projectlombok:lombok:1.18.38'
-    annotationProcessor 'org.projectlombok:lombok:1.18.38'
+    implementation 'org.projectlombok:lombok:1.18.38'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.mockito:mockito-core:5.11.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
+
+    implementation("javax.validation:validation-api:2.0.1.Final")
+    implementation("jakarta.validation:jakarta.validation-api:3.1.1")
 }
 
 test {
