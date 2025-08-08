@@ -34,7 +34,10 @@ jobs:
         run: ./gradlew clean build jacocoTestReport
 
       - name: Verify JaCoCo CSV exists
-        run: ls -la build/reports/jacoco/test || true
+        run: |
+          echo "Looking for JaCoCo CSV..."
+          ls -l build/reports/jacoco/test/
+          test -f build/reports/jacoco/test/jacocoTestReport.csv
 
       - name: Generate JaCoCo coverage badges
         uses: cicirello/jacoco-badge-generator@v2
