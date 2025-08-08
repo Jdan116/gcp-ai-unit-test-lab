@@ -1,4 +1,4 @@
-name: CI with JaCoCo Coverage
+name: Java CI + JaCoCo + Clickable Uncovered Methods
 
 on:
   push:
@@ -6,40 +6,38 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   build-test-coverage:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: 🧾 Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: ☕ Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          distribution: temurin
+          java-version: 17
 
-      - name: Cache Gradle packages
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+      - name: ⚙️ Set up Gradle (cache)
+        uses: gradle/gradle-build-action@v2
 
-      - name: Build, test, and generate JaCoCo report
-        run: ./gradlew clean build jacocoTestReport
+      - name: ✅ Build, test, and generate JaCoCo (XML/HTML/CSV)
+        run: ./gradlew clean test jacocoTestReport
 
-      - name: Verify JaCoCo CSV exists
+      - name: 🔎 Verify JaCoCo outputs
         run: |
-          echo "Looking for JaCoCo CSV..."
-          ls -l build/reports/jacoco/test/
+          ls -la build/reports/jacoco/test || true
+          test -f build/reports/jacoco/test/jacocoTestReport.xml
           test -f build/reports/jacoco/test/jacocoTestReport.csv
 
-      - name: Generate JaCoCo coverage badges
+      # Optional: badges + summary table (uses CSV)
+      - name: 📊 Generate coverage badges & summary
         uses: cicirello/jacoco-badge-generator@v2
         with:
           jacoco-csv-file: build/reports/jacoco/test/jacocoTestReport.csv
@@ -48,16 +46,39 @@ jobs:
           branches-badge-filename: branches.svg
           generate-coverage-badge: true
           generate-branches-badge: true
-          coverage-label: coverage
-          branches-label: branches
           on-missing-report: fail
-          fail-if-coverage-less-than: 60
-          fail-if-branches-less-than: 30
+          fail-if-coverage-less-than: 70
+          fail-if-branches-less-than: 50
           generate-summary: true
           summary-filename: coverage-summary.md
+          generate-workflow-summary: true
+          workflow-summary-heading: "JaCoCo Coverage Summary"
 
-      - name: Upload badges as artifact
+      - name: 📦 Upload coverage artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-badges
-          path: .github/badges
+          name: jacoco-reports
+          path: |
+            build/reports/jacoco/test/html
+            build/reports/jacoco/test/jacocoTestReport.xml
+            build/reports/jacoco/test/jacocoTestReport.csv
+
+      # ---- Clickable uncovered methods PR comment ----
+      - name: 🧰 Ensure script is executable
+        run: chmod +x .github/scripts/list_uncovered_methods.py
+
+      - name: 🧮 Generate uncovered methods markdown
+        id: uncovered
+        env:
+          # Prefer PR head sha for links; fallback to the current sha
+          LINK_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          python3 .github/scripts/list_uncovered_methods.py build/reports/jacoco/test/jacocoTestReport.xml > uncovered.md
+          echo "Generated uncovered.md:"
+          head -n 50 uncovered.md || true
+
+      - name: 💬 Post sticky PR comment with uncovered methods
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: uncovered.md
