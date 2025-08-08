@@ -1,5 +1,6 @@
 package com.example.lab.controller;
 
+import com.example.lab.exception.EmailAlreadyExistsException;
 import com.example.lab.model.User;
 import com.example.lab.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -30,5 +31,24 @@ class UserControllerTest {
                 .content("{\"name\":\"Frank\",\"email\":\"frank@example.com\"}"))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.email").value("frank@example.com"));
+    }
+
+
+    @Test
+    void shouldReturnConflictForDuplicateEmail() throws Exception {
+        when(userService.createUser(any())).thenThrow(new EmailAlreadyExistsException("Email exists"));
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"Frank\",\"email\":\"frank@example.com\"}"))
+            .andExpect(status().isConflict());
+    }
+
+    @Test
+    void shouldReturnInternalServerErrorForUnexpectedException() throws Exception {
+        when(userService.createUser(any())).thenThrow(new RuntimeException("Unexpected error"));
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"Frank\",\"email\":\"frank@example.com\"}"))
+            .andExpect(status().isInternalServerError());
     }
 }

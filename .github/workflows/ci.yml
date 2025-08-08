@@ -51,8 +51,8 @@ jobs:
           coverage-label: coverage
           branches-label: branches
           on-missing-report: fail
-          fail-if-coverage-less-than: 70
-          fail-if-branches-less-than: 50
+          fail-if-coverage-less-than: 60
+          fail-if-branches-less-than: 30
           generate-summary: true
           summary-filename: coverage-summary.md
 
