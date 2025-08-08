@@ -23,7 +23,7 @@
 <tr>
 <td>
 <div class="infoBox" id="tests">
-<div class="counter">1</div>
+<div class="counter">3</div>
 <p>tests</p>
 </div>
 </td>
@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">0.474s</div>
+<div class="counter">0.193s</div>
 <p>duration</p>
 </div>
 </td>
@@ -66,9 +66,6 @@
 <li>
 <a href="#">Standard output</a>
 </li>
-<li>
-<a href="#">Standard error</a>
-</li>
 </ul>
 <div class="tab">
 <h2>Tests</h2>
@@ -82,7 +79,17 @@
 </thead>
 <tr>
 <td class="success">shouldCreateUserSuccessfully()</td>
-<td class="success">0.474s</td>
+<td class="success">0.056s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">shouldReturnConflictForDuplicateEmail()</td>
+<td class="success">0.133s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">shouldReturnInternalServerErrorForUnexpectedException()</td>
+<td class="success">0.004s</td>
 <td class="success">passed</td>
 </tr>
 </table>
@@ -90,8 +97,8 @@
 <div class="tab">
 <h2>Standard output</h2>
 <span class="code">
-<pre>19:22:04.173 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.lab.controller.UserControllerTest]: UserControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-19:22:04.406 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.lab.GcpAiUnitTestLabApplication for test class com.example.lab.controller.UserControllerTest
+<pre>19:59:20.454 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.lab.controller.UserControllerTest]: UserControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+19:59:20.664 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.lab.GcpAiUnitTestLabApplication for test class com.example.lab.controller.UserControllerTest
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -101,7 +108,7 @@
  =========|_|==============|___/=/_/_/_/
  :: Spring Boot ::                (v3.2.9)
 
-2025-08-07T19:22:05.031-05:00  WARN 93084 --- [    Test worker] ory$DuplicateJsonObjectContextCustomizer : 
+2025-08-07T19:59:21.095-05:00  WARN 95090 --- [    Test worker] ory$DuplicateJsonObjectContextCustomizer : 
 
 Found multiple occurrences of org.json.JSONObject on the class path:
 
@@ -110,26 +117,12 @@ Found multiple occurrences of org.json.JSONObject on the class path:
 
 You may wish to exclude one of them to ensure predictable runtime behavior
 
-2025-08-07T19:22:05.046-05:00  INFO 93084 --- [    Test worker] c.e.lab.controller.UserControllerTest    : Starting UserControllerTest using Java 21.0.5 with PID 93084 (started by jdany in /Users/jdany/Downloads/gcp-ai-unit-test-lab)
-2025-08-07T19:22:05.047-05:00  INFO 93084 --- [    Test worker] c.e.lab.controller.UserControllerTest    : No active profile set, falling back to 1 default profile: &quot;default&quot;
-2025-08-07T19:22:08.075-05:00  INFO 93084 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
-2025-08-07T19:22:08.075-05:00  INFO 93084 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2025-08-07T19:22:08.077-05:00  INFO 93084 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
-2025-08-07T19:22:08.128-05:00  INFO 93084 --- [    Test worker] c.e.lab.controller.UserControllerTest    : Started UserControllerTest in 3.574 seconds (process running for 5.738)
-</pre>
-</span>
-</div>
-<div class="tab">
-<h2>Standard error</h2>
-<span class="code">
-<pre>[2025.08.07 19:22:04] (Coverage): Error during class instrumentation: org.springframework.http.client.ReactorResourceFactory: java.lang.RuntimeException: java.io.IOException: Class reactor/netty/resources/ConnectionProvider not found
-[2025.08.07 19:22:04] (Coverage): Error during class instrumentation: org.springframework.boot.logging.log4j2.Log4J2LoggingSystem: java.lang.RuntimeException: java.io.IOException: Class org/apache/logging/log4j/core/config/composite/CompositeConfiguration not found
-[2025.08.07 19:22:05] (Coverage): Error during class instrumentation: org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport: java.lang.RuntimeException: java.io.IOException: Class jakarta/validation/ValidatorFactory not found
-WARNING: A Java agent has been loaded dynamically (/Users/jdany/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.14.19/154da3a65b4f4a909d3e5bdec55d1b2b4cbb6ce1/byte-buddy-agent-1.14.19.jar)
-WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
-WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
-WARNING: Dynamic loading of agents will be disallowed by default in a future release
-[2025.08.07 19:22:07] (Coverage): Error during class instrumentation: org.springframework.core.ReactiveAdapterRegistry$ReactorAdapter: java.lang.RuntimeException: java.io.IOException: Class reactor/core/publisher/Flux not found
+2025-08-07T19:59:21.111-05:00  INFO 95090 --- [    Test worker] c.e.lab.controller.UserControllerTest    : Starting UserControllerTest using Java 21.0.5 with PID 95090 (started by jdany in /Users/jdany/Downloads/gcp-ai-unit-test-lab)
+2025-08-07T19:59:21.113-05:00  INFO 95090 --- [    Test worker] c.e.lab.controller.UserControllerTest    : No active profile set, falling back to 1 default profile: &quot;default&quot;
+2025-08-07T19:59:21.957-05:00  INFO 95090 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2025-08-07T19:59:21.957-05:00  INFO 95090 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2025-08-07T19:59:21.959-05:00  INFO 95090 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2025-08-07T19:59:21.986-05:00  INFO 95090 --- [    Test worker] c.e.lab.controller.UserControllerTest    : Started UserControllerTest in 1.22 seconds (process running for 6.251)
 </pre>
 </span>
 </div>
@@ -141,7 +134,7 @@ WARNING: Dynamic loading of agents will be disallowed by default in a future rel
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="https://www.gradle.org">Gradle 8.13</a> at Aug 7, 2025, 7:22:09 PM</p>
+<a href="https://www.gradle.org">Gradle 8.13</a> at Aug 7, 2025, 7:59:22 PM</p>
 </div>
 </div>
 </body>

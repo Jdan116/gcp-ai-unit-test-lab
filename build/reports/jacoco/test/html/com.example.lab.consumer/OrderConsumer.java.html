@@ -16,8 +16,8 @@ public class OrderConsumer {
     private final OrderService orderService;
 
     public void consume(String message) throws JsonProcessingException {
-<span class="nc" id="L19">        Order order = objectMapper.readValue(message, Order.class);</span>
-<span class="nc" id="L20">        orderService.process(order);</span>
-<span class="nc" id="L21">    }</span>
+<span class="fc" id="L19">        Order order = objectMapper.readValue(message, Order.class);</span>
+<span class="fc" id="L20">        orderService.process(order);</span>
+<span class="fc" id="L21">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

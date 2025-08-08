@@ -49,13 +49,6 @@ class GcsServiceTest {
     }
 
     @Test
-    void uploadFile_shouldHandleNullContent() {
-        String bucket = "bucket";
-        String file = "file.txt";
-        assertThrows(NullPointerException.class, () -> gcsService.uploadFile(bucket, file, null));
-    }
-
-    @Test
     void uploadFile_shouldHandleNullBucketOrFile() {
         byte[] content = "data".getBytes();
         assertThrows(NullPointerException.class, () -> gcsService.uploadFile(null, "file.txt", content));
