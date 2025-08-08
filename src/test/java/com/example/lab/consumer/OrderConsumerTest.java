@@ -37,7 +37,7 @@ class OrderConsumerTest {
         orderConsumer.consume(message);
         verify(orderService, times(1)).process(order);
     }
-
+//test
     @Test
     void consume_invalidJson_shouldThrowJsonProcessingException() throws Exception {
         String message = "invalid-json";
